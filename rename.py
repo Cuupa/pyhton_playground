@@ -2,7 +2,6 @@ import os
 import re
 
 suffix = '.mkv'
-
 delimiter = ' - '
 
 dir = "path\\to\\dir"
