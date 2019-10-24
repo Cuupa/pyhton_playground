@@ -1,2 +1,2 @@
-# pyhton_playground
-my python playground
+# Personal python playground
+My python playground for just learning the language and trying some stuff

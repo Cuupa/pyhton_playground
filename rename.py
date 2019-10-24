@@ -1,6 +1,10 @@
 import os
 import re
 
+suffix = '.mkv'
+
+delimiter = ' - '
+
 dir = "path\\to\\dir"
 dir_to_merge = "path\\to\\source"
 
@@ -11,10 +15,10 @@ def main():
 
     for file in os.listdir(dir):
         path, filename = os.path.split(file)
-        splitted = re.split(' - ', filename)
+        splitted = re.split(delimiter, filename)
         new_number_string = get_leading_numbers(number_to_merge, splitted[0])
 
-        new_file_name = new_number_string + ' - ' + splitted[1] + ' - ' + splitted[2]
+        new_file_name = new_number_string + delimiter + splitted[1] + delimiter + splitted[2]
         print(new_file_name)
         # os.rename(file, new_file_name)
         print(file)
@@ -23,7 +27,7 @@ def main():
 def get_numbers_to_merge():
     number_to_merge = 0
     for file_to_merge in os.listdir(dir_to_merge):
-        if file_to_merge.endswith('.mkv'):
+        if file_to_merge.endswith(suffix):
             number_to_merge += 1
     return number_to_merge
 
