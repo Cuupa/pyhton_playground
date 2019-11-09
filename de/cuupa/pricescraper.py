@@ -21,11 +21,8 @@ row_names = ["Name", "Price"]
 def main():
     for url in urls:
         request = requests.get(url, stream=False, headers={'User-agent': 'Mozilla/5.0'})
-        print(request.cookies)
-        for i in request.cookies:
-            print(i)
         if request.status_code != 200:
-            print("Error getting result")
+            print("Error getting result: HTTP/" + str(request.status_code))
         else:
             process_article(request, url)
 
