@@ -5,6 +5,8 @@ import sys
 import requests
 from bs4 import BeautifulSoup
 
+from CommandLine import CommandLine
+
 urls = [
     "https://www.amazon.de/Seagate-ST4000VN008-IronWolf-interne-Festplatte/dp/B075X181C5",
     "https://www.amazon.de/Seagate-ST4000VN008-IronWolf-interne-Festplatte/dp/B07GTSFS29",
@@ -19,7 +21,7 @@ row_names = ["Name", "Price"]
 path_to_save = None
 
 
-def is_lowes_price(url):
+def is_lowest_price(url):
     path, name = os.path.split(url)
     filename = alias.get(name) + '.csv'
     with open(filename, 'r', newline='\n') as csvfile:
@@ -45,51 +47,13 @@ def get_message_text(url):
     return alias.get(name)
 
 
-def print_help():
-    print("--help\t\t\t\t\tPrints this screen.")
-    print("--url=www.amazon.com/product_id\t\tThe url which shall be processed")
-    print("\t\t\t\t\tIf no url is specified, the program will use the hardcoded ones.")
-    print("--out=/path/to/save/to\t\t\tThe directory to save to. If the directory doesn\'t exist it will be created.")
-    print("\t\t\t\t\tIf no output directory is specified, the files will be saved next to the program.")
-    exit()
-
-
-def parse_command_line_arguments(args):
-    if "--help" in args:
-        print_help()
-
-    if "--out=" in args:
-        handle_out_arg(args)
-
-    if "--url=" in args:
-        handle_url_arg(args)
-
-
-def handle_url_arg(args):
-    urls_arg = args.split("=")
-    if len(urls_arg) == 2:
-        urls = urls_arg[1]
-    else:
-        print_help()
-        exit()
-
-
-def handle_out_arg(args):
-    out_arg = args.split("=")
-    if len(out_arg) == 2:
-        path_to_save = out_arg[1]
-    else:
-        print_help()
-        exit()
-
-
 def main():
     for args in sys.argv[1::]:
-        parse_command_line_arguments(args)
+        CommandLine(args)
 
     for url in urls:
         get_prices_write_to_csv(url)
-        is_lowered, price = is_lowes_price(url)
+        is_lowered, price = is_lowest_price(url)
         if is_lowered:
             print("Price dropped for " + get_message_text(url) + " " + str(price))
 
@@ -110,24 +74,26 @@ def process_article(request, url):
         if not os.path.exists(filepath) and '' not in filepath:
             os.mkdirs(filepath)
 
-        if not os.path.exists(filename):
-            csv.writer(open(filename, 'a', newline='\n'), quoting=csv.QUOTE_NONE, delimiter=';', quotechar='',
+        final_filepath = filepath + os.path.sep + filename
+        if not os.path.exists(final_filepath):
+            csv.writer(open(final_filepath, 'a', newline='\n'), quoting=csv.QUOTE_NONE, delimiter=';', quotechar='',
                        escapechar='\\').writerow(row_names)
             print("Created file " + os.path.abspath(filename))
 
-        csv.writer(open(filename, 'a', newline='\n'), quoting=csv.QUOTE_NONE, delimiter=';', quotechar='',
+        csv.writer(open(final_filepath, 'a', newline='\n'), quoting=csv.QUOTE_NONE, delimiter=';', quotechar='',
                    escapechar='\\').writerow([name, final_price])
-        print("Added to file " + os.path.abspath(filename))
+        print("Added to file " + os.path.abspath(final_filepath))
     except:
         print(sys.exc_info()[0])
 
 
 def get_filename(name):
-    if path_to_save is None:
-        filename = alias.get(name) + '.csv'
-    else:
-        if not path_to_save.endswith('/') or not path_to_save.endswith('\\'):
-            filename = path_to_save + '/'
+    filename = alias.get(name) + ".csv"
+    if path_to_save is not None:
+        if not path_to_save.endswith(os.path.sep):
+            return path_to_save + os.path.sep + filename
+        else:
+            return path_to_save + filename
     return filename
 
 
