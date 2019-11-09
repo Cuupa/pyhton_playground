@@ -44,7 +44,7 @@ def get_message_text(url):
 
 def main():
     for url in urls:
-        # get_prices_write_to_csv(url)
+        get_prices_write_to_csv(url)
         if is_lowes_price(url):
             print("Price dropped for " + get_message_text(url))
 
