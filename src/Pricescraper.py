@@ -19,9 +19,9 @@ alias = {"B075X181C5": "Seagate Ironwolf 12 TB",
 row_names = ["Name", "Price"]
 
 
-def is_lowest_price(url):
+def is_lowest_price(url, path_to_save):
     path, name = os.path.split(url)
-    filename = alias.get(name) + '.csv'
+    filename = get_filename(name, path_to_save)
     with open(filename, 'r', newline='\n') as csvfile:
         reader = csv.reader(csvfile, delimiter=';')
         lowest_price = float('inf')
@@ -46,18 +46,20 @@ def get_message_text(url):
 
 
 def main():
+    global urls_local
     path_to_save = None
     for args in sys.argv[1::]:
         commandline = CommandLine(args)
-        path_to_save = commandline.path_to_save
-        urls_commandline = commandline.urls
+        path_to_save = commandline.get_path_to_save()
+        urls_commandline = commandline.get_urls()
         if urls_commandline is not None:
-            global urls
-            urls = urls_commandline
+            urls_local = urls_commandline
+        else:
+            urls_local = urls
 
-    for url in urls:
+    for url in urls_local:
         get_prices_write_to_csv(url, path_to_save)
-        is_lowered, price = is_lowest_price(url)
+        is_lowered, price = is_lowest_price(url, path_to_save)
         if is_lowered:
             print("Price dropped for " + get_message_text(url) + " " + str(price))
 
