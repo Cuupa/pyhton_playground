@@ -1,4 +1,6 @@
 class CommandLine:
+    path_to_save = None
+    urls = None
 
     def __init__(self, args):
         self.parse_command_line_arguments(args)

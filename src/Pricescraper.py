@@ -18,8 +18,6 @@ alias = {"B075X181C5": "Seagate Ironwolf 12 TB",
 
 row_names = ["Name", "Price"]
 
-path_to_save = None
-
 
 def is_lowest_price(url):
     path, name = os.path.split(url)
@@ -48,29 +46,35 @@ def get_message_text(url):
 
 
 def main():
+    path_to_save = None
     for args in sys.argv[1::]:
-        CommandLine(args)
+        commandline = CommandLine(args)
+        path_to_save = commandline.path_to_save
+        urls_commandline = commandline.urls
+        if urls_commandline is not None:
+            global urls
+            urls = urls_commandline
 
     for url in urls:
-        get_prices_write_to_csv(url)
+        get_prices_write_to_csv(url, path_to_save)
         is_lowered, price = is_lowest_price(url)
         if is_lowered:
             print("Price dropped for " + get_message_text(url) + " " + str(price))
 
 
-def get_prices_write_to_csv(url):
+def get_prices_write_to_csv(url, path_to_save):
     request = requests.get(url, stream=False, headers={'User-agent': 'Mozilla/5.0'})
     if request.status_code != 200:
         print("Error getting result: HTTP/" + str(request.status_code))
     else:
-        process_article(request, url)
+        process_article(request, url, path_to_save)
 
 
-def process_article(request, url):
+def process_article(request, url, path_to_save):
     try:
         final_price = get_price(request)
         path, name = os.path.split(url)
-        filepath, filename = os.path.split(get_filename(name))
+        filepath, filename = os.path.split(get_filename(name, path_to_save))
         if not os.path.exists(filepath) and '' not in filepath:
             os.mkdirs(filepath)
 
@@ -87,7 +91,7 @@ def process_article(request, url):
         print(sys.exc_info()[0])
 
 
-def get_filename(name):
+def get_filename(name, path_to_save):
     filename = alias.get(name) + ".csv"
     if path_to_save is not None:
         if not path_to_save.endswith(os.path.sep):
