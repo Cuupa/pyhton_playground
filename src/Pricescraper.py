@@ -2,6 +2,8 @@ import csv
 import datetime
 import os
 import sys
+from datetime import datetime
+from threading import Timer
 
 import requests
 
@@ -24,33 +26,46 @@ row_names = ["Date, Name", "Price"]
 
 
 def main():
-    path_to_save, urls_local, verbose = get_cmd_args(urls)
+    path_to_save, urls_local, verbose, is_hourly = get_cmd_args(urls)
+    process(path_to_save, urls_local, verbose, is_hourly)
 
+
+def process(path_to_save, urls_local, verbose, is_hourly):
+    print(path_to_save)
+    if is_hourly:
+        time = datetime.now()
+        scheduled_time = time.replace(day=time.day, hour=time.hour + 1, minute=time.minute, second=time.second,
+                                      microsecond=time.microsecond)
+        delta_t = scheduled_time - time
+        seconds = delta_t.total_seconds()
+        t = Timer(seconds, process)
+        t.start()
     for url in urls_local:
-        get_prices_write_to_csv(url, path_to_save, verbose)
-        lowest_price = CSVPriceextractor.get_lowest_price(get_filename(url, path_to_save))
-        print("Price for " + get_message_text(url) + ": " + str(lowest_price))
+        success = get_prices_write_to_csv(url, path_to_save, verbose)
+        if success:
+            lowest_price = CSVPriceextractor.get_lowest_price(get_filename(url, path_to_save))
+            print("Price for " + get_message_text(url) + ": " + str(lowest_price))
 
 
 def get_cmd_args(urls_local):
-    for args in sys.argv[2::]:
-        commandline = CommandLine(args)
-        path_to_save = commandline.get_path_to_save()
-        urls_commandline = commandline.get_urls()
-        if urls_commandline is not None:
-            urls_local = urls_commandline
-        verbose = commandline.is_verbose()
-        return path_to_save, urls_local, verbose
-    return os.path.curdir, urls, False
+    commandline = CommandLine(sys.argv)
+    urls_commandline = commandline.get_urls()
+    if urls_commandline is not None:
+        urls_local = urls_commandline
+    return commandline.get_path_to_save(), urls_local, commandline.is_verbose(), commandline.is_hourly()
 
 
 def get_prices_write_to_csv(url, path_to_save, verbose):
-    request = requests.get(url, stream=False, headers={'User-agent': 'Mozilla/5.0'})
-    if request.status_code != 200:
-        print("Error getting result: HTTP/" + str(request.status_code))
-    else:
-        process_article(request, url, path_to_save, verbose)
-
+    try:
+        request = requests.get(url, stream=False, headers={'User-agent': 'Mozilla/5.0'})
+        if request.status_code != 200:
+            print("Error getting result: HTTP/" + str(request.status_code))
+        else:
+            process_article(request, url, path_to_save, verbose)
+            return True
+    except:
+        print("Unable to connect to " + url)
+    return False
 
 def process_article(request, url, path_to_save, verbose):
     try:

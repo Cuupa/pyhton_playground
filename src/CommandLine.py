@@ -3,22 +3,32 @@ class CommandLine:
 
     def __init__(self, args):
         self.args = args
-        if "--help" in args:
-            self.print_help()
+        for arg in self.args[1::]:
+            if "--help" in args:
+                self.print_help()
 
     def is_verbose(self):
-        if "--verbose" in self.args:
-            return True
+        for arg in self.args[1::]:
+            if "--verbose" in arg:
+                return True
+        return False
+
+    def is_hourly(self):
+        for arg in self.args[1::]:
+            if "--hourly" in arg:
+                return True
         return False
 
     def get_path_to_save(self):
-        if "--out=" in self.args:
-            return self.handle_out_arg(self.args)
+        for arg in self.args[1::]:
+            if "--out=" in arg:
+                return self.handle_out_arg(arg)
         return None
 
     def get_urls(self):
-        if "--url=" in self.args:
-            return self.handle_url_arg(self.args)
+        for arg in self.args[1::]:
+            if "--url=" in arg:
+                return self.handle_url_arg(arg)
         return None
 
     def handle_url_arg(self, args):
@@ -39,6 +49,7 @@ class CommandLine:
 
     def print_help(self):
         print("--help\t\t\t\t\tPrints this screen.")
+        print("--hourly\t\t\t\tRuns this program every hour.")
         print("--url=www.amazon.com/product_id\t\tThe url which shall be processed")
         print("\t\t\t\t\tIf no url is specified, the program will use the hardcoded ones.")
         print(
