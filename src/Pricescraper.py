@@ -28,8 +28,7 @@ def main():
 
     for url in urls_local:
         get_prices_write_to_csv(url, path_to_save, verbose)
-        extractor = CSVPriceextractor()
-        lowest_price = extractor.get_lowest_price(get_filename(url, path_to_save))
+        lowest_price = CSVPriceextractor.get_lowest_price(get_filename(url, path_to_save))
         print("Price for " + get_message_text(url) + ": " + str(lowest_price))
 
 
@@ -55,7 +54,7 @@ def get_prices_write_to_csv(url, path_to_save, verbose):
 
 def process_article(request, url, path_to_save, verbose):
     try:
-        price = ValueExtractor().get_value(request, 'span', lookup_fields)
+        price = ValueExtractor.get_value(request, 'span', lookup_fields)
         if price is not None:
             path, name = os.path.split(url)
             filepath = get_and_create_file_path(name, path_to_save)
@@ -94,6 +93,7 @@ def get_and_create_file_path(name, path_to_save):
 
 
 def get_filename(name, path_to_save):
+    path, name = os.path.split(name)
     filename = alias.get(name) + ".csv"
     if not path_to_save.endswith(os.path.sep):
         return path_to_save + os.path.sep + filename

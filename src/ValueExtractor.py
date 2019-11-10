@@ -6,7 +6,8 @@ class ValueExtractor:
     def __init__(self):
         pass
 
-    def get_value(self, request, element_type, element_ids):
+    @staticmethod
+    def get_value(request, element_type, element_ids):
         soup = BeautifulSoup(request.content, 'html.parser')
 
         for element in element_ids:
