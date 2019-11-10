@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
 
 
-class ValueExtractor():
+class ValueExtractor:
 
     def __init__(self):
         pass
