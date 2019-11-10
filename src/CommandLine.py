@@ -6,6 +6,11 @@ class CommandLine:
         if "--help" in args:
             self.print_help()
 
+    def is_verbose(self):
+        if "--verbose" in self.args:
+            return True
+        return False
+
     def get_path_to_save(self):
         if "--out=" in self.args:
             return self.handle_out_arg(self.args)
@@ -17,7 +22,7 @@ class CommandLine:
         return None
 
     def handle_url_arg(self, args):
-        urls_arg = args.split("=")
+        urls_arg = args.split("--url=")
         if len(urls_arg) == 2:
             return urls_arg[1]
         else:
@@ -25,7 +30,7 @@ class CommandLine:
             exit()
 
     def handle_out_arg(self, args):
-        out_arg = args.split("=")
+        out_arg = args.split("--out=")
         if len(out_arg) == 2:
             return out_arg[1]
         else:
