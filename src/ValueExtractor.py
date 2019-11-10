@@ -10,7 +10,7 @@ class ValueExtractor():
         soup = BeautifulSoup(request.content, 'html.parser')
 
         for element in element_ids:
-            element_extracted = soup.find(element_type, element)
+            element_extracted = soup.find(element_type, id=element)
             if element_extracted is not None:
                 return element_extracted.text.strip()
         return None
