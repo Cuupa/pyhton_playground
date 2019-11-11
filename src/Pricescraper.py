@@ -31,7 +31,6 @@ def main():
 
 
 def process(path_to_save, urls_local, verbose, is_hourly):
-    print(path_to_save)
     if is_hourly:
         time = datetime.now()
         scheduled_time = time.replace(day=time.day, hour=time.hour + 1, minute=time.minute, second=time.second,
@@ -40,11 +39,15 @@ def process(path_to_save, urls_local, verbose, is_hourly):
         seconds = delta_t.total_seconds()
         t = Timer(seconds, process)
         t.start()
+        if verbose:
+            print("Timer started")
     for url in urls_local:
         success = get_prices_write_to_csv(url, path_to_save, verbose)
         if success:
             lowest_price = CSVPriceextractor.get_lowest_price(get_filename(url, path_to_save))
             print("Price for " + get_message_text(url) + ": " + str(lowest_price))
+    if verbose:
+        print(str(datetime.now()) + ": executed")
 
 
 def get_cmd_args(urls_local):
@@ -67,6 +70,7 @@ def get_prices_write_to_csv(url, path_to_save, verbose):
         print("Unable to connect to " + url)
     return False
 
+
 def process_article(request, url, path_to_save, verbose):
     try:
         price = ValueExtractor.get_value(request, 'span', lookup_fields)
@@ -88,7 +92,7 @@ def process_article(request, url, path_to_save, verbose):
 
 def add_row(filepath, name, price, verbose):
     csv.writer(open(filepath, 'a', newline='\n'), quoting=csv.QUOTE_NONE, delimiter=';', quotechar='',
-               escapechar='\\').writerow([datetime.datetime.now().date(), name, price])
+               escapechar='\\').writerow([datetime.now().date(), name, price])
     if verbose:
         print("Added to file " + os.path.abspath(filepath))
 
