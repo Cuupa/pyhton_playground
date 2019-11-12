@@ -7,15 +7,15 @@ from threading import Timer
 
 import requests
 
-from CSVPriceextractor import CSVPriceextractor
-from CommandLine import CommandLine
-from Date import Date
-from ValueExtractor import ValueExtractor
+from util.CSVPriceextractor import CSVPriceextractor
+from util.CommandLine import CommandLine
+from util.Date import Date
+from util.ValueExtractor import ValueExtractor
 
 urls = [
-    # "https://www.amazon.de/Seagate-ST4000VN008-IronWolf-interne-Festplatte/dp/B075X181C5",
-    "https://www.amazon.de/Seagate-ST4000VN008-IronWolf-interne-Festplatte/dp/B07GTSFS29"  # ,
-    # "https://www.amazon.de/Seagate-ST4000VN008-IronWolf-interne-Festplatte/dp/B07SNW9W48"
+    "https://www.amazon.de/Seagate-ST4000VN008-IronWolf-interne-Festplatte/dp/B075X181C5",
+    "https://www.amazon.de/Seagate-ST4000VN008-IronWolf-interne-Festplatte/dp/B07GTSFS29",
+    "https://www.amazon.de/Seagate-ST4000VN008-IronWolf-interne-Festplatte/dp/B07SNW9W48"
 ]
 
 """
@@ -78,21 +78,21 @@ def get_cmd_args(urls_local):
 
 def get_prices_write_to_csv(url, path_to_save, verbose):
     try:
-        request = requests.get(url, stream=False, headers={'User-agent': 'Mozilla/5.0'})
-        if request.status_code != 200:
-            print("Error getting result: HTTP/" + str(request.status_code))
+        response = requests.get(url, stream=False, headers={'User-agent': 'Mozilla/5.0'})
+        if response.status_code != 200:
+            print("Error getting result: HTTP/" + str(response.status_code))
         else:
-            filepath = process_article(request, url, path_to_save, verbose)
+            filepath = process_article(response, url, path_to_save, verbose)
             return True, filepath
     except:
         print("Unable to connect to " + url)
     return False, None
 
 
-def process_article(request, url, path_to_save, verbose):
+def process_article(response, url, path_to_save, verbose):
     try:
-        advertised_price = ValueExtractor.get_value(request, 'span', lookup_fields_advertised_price)
-        price = ValueExtractor.get_value(request, 'span', lookup_fields_final_price)
+        advertised_price = ValueExtractor.get_value(response, 'span', lookup_fields_advertised_price)
+        price = ValueExtractor.get_value(response, 'span', lookup_fields_final_price)
         if price is not None:
             if advertised_price is None:
                 advertised_price = price
