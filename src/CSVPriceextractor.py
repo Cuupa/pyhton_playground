@@ -15,9 +15,9 @@ class CSVPriceextractor:
                 list_prices = list()
                 length = 0
                 for row in reader:
-                    if row[1] != 'Price':
+                    if row[3] != 'Price':
                         length += 1
-                        price = float(row[2].split()[0].replace(',', '.'))
+                        price = float(row[3].split()[0].replace(',', '.'))
                         list_prices.append(price)
                         if price < lowest_price:
                             lowest_price = price

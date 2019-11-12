@@ -1,5 +1,4 @@
 class CommandLine:
-    args = None
 
     def __init__(self, args):
         self.args = args
@@ -47,7 +46,8 @@ class CommandLine:
             self.print_help()
             exit()
 
-    def print_help(self):
+    @staticmethod
+    def print_help():
         print("--help\t\t\t\t\tPrints this screen.")
         print("--hourly\t\t\t\tRuns this program every hour.")
         print("--url=www.amazon.com/product_id\t\tThe url which shall be processed")

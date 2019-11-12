@@ -1,7 +1,7 @@
 import os
 import re
 
-dir = "path\\to\\dir"
+source_dir = "path\\to\\dir"
 dir_to_merge = "path\\to\\source"
 
 
@@ -9,12 +9,12 @@ def main():
     number_to_merge = get_numbers_to_merge()
     print(number_to_merge)
 
-    for file in os.listdir(dir):
+    for file in os.listdir(source_dir):
         path, filename = os.path.split(file)
-        splitted = re.split(' - ', filename)
-        new_number_string = get_leading_numbers(number_to_merge, splitted[0])
+        split = re.split(' - ', filename)
+        new_number_string = get_leading_numbers(number_to_merge, split[0])
 
-        new_file_name = new_number_string + ' - ' + splitted[1] + ' - ' + splitted[2]
+        new_file_name = new_number_string + ' - ' + split[1] + ' - ' + split[2]
         print(new_file_name)
         # os.rename(file, new_file_name)
         print(file)

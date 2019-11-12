@@ -14,4 +14,10 @@ class ValueExtractor:
             element_extracted = soup.find(element_type, id=element)
             if element_extracted is not None:
                 return element_extracted.text.strip()
+
+        # for element in element_ids:
+        #    element_extracted = soup.find_all(element_type, {'class': element})
+        #    if element_extracted is not None:
+        #        return element_extracted[0].text.strip()
+
         return None
