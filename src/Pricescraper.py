@@ -7,10 +7,10 @@ from threading import Timer
 
 import requests
 
-from util.CSVPriceextractor import CSVPriceextractor
-from util.CommandLine import CommandLine
-from util.Date import Date
-from util.ValueExtractor import ValueExtractor
+from CSVPriceextractor import CSVPriceextractor
+from CommandLine import CommandLine
+from Date import Date
+from ValueExtractor import ValueExtractor
 
 urls = [
     "https://www.amazon.de/Seagate-ST4000VN008-IronWolf-interne-Festplatte/dp/B075X181C5",
@@ -76,14 +76,20 @@ def get_cmd_args(urls_local):
     return commandline.get_path_to_save(), urls_local, commandline.is_verbose(), commandline.is_hourly()
 
 
+def response_invalid(status_code, content):
+    return status_code != 200 or str(content).find("<title dir=\"ltr\">Bot Check</title>") != -1
+
+
 def get_prices_write_to_csv(url, path_to_save, verbose):
     try:
-        response = requests.get(url, stream=False, headers={'User-agent': 'Mozilla/5.0'})
-        if response.status_code != 200:
+        response = requests.get(url, stream=False, headers={
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
+                          "Chrome/78.0.3904.108 Safari/537.36"})
+        if response_invalid(response.status_code, response.content):
             print("Error getting result: HTTP/" + str(response.status_code))
         else:
             filepath = process_article(response, url, path_to_save, verbose)
-            return True, filepath
+        return True, filepath
     except:
         print("Unable to connect to " + url)
     return False, None

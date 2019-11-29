@@ -1,6 +1,6 @@
 import os
 
-from util.Download import Download
+from Download import Download
 
 url: str = "https://docs.microsoft.com/en-us/archive/msdn-magazine/msdn-magazine-issues"
 download_url: str = "http://download.microsoft.com/download/"
