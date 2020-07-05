@@ -61,7 +61,19 @@ def getWarp(img, biggest_contour):
 
 @app.route("/api/image/transform", methods=['POST'])
 def transform():
-    data = request.data
+    files = request.files
+    if not len(files):
+        return Response("MISSING FILE, CHECK IF CONTENT TYPE IS MULTIPART FORM", 400)
+    upload = files['key'] if 'key' in files else list(files.values())[0]
+    if not upload:
+        return Response("MISSING FILE", 400)
+
+    data = upload.read()
+
+    file = open(list(files.keys())[0], 'wb')
+    file.write(data)
+    file.close()
+
     np_array = np.frombuffer(data, np.uint8)
     img = cv2.imdecode(np_array, -1)
     preprocessed_img = preProcessing(img)
