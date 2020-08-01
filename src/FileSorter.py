@@ -1,13 +1,14 @@
 import sys
-from os import walk, path, makedirs, rename
+from os import walk, path, makedirs, rename, rmdir
 
 images_endings = [".jpg", ".jpeg", ".png", ".heic"]
 video_endings = [".mp4", ".avi", ".mkv", ".heif"]
 iso_endings = [".iso", ".img"]
 archive_endings = [".zip", ".tar", ".gz", ".tar.gz", ".7z", ".rar", ".xz", ".tar.xz", ".tgz"]
-executable_endings = [".exe", ".java", ".py"]
-ebook_endings = [".epub", '.mobi']
+executable_endings = [".exe", ".java", ".py", ".sh", ".bat"]
+ebook_endings = [".epub", ".mobi"]
 audio_endings = [".aac", ".mid", ".ogg", ".mp3", ".wav"]
+office_endings = [".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx"]
 
 
 def check_for_ebooks(file, files):
@@ -48,6 +49,8 @@ def handle_remaining(path_to_sort):
         break
     for file in files:
         filename, ending = path.splitext(file)
+        if ending == '.crdownload':
+            return
         move_files_to(path_to_sort, file, ending.upper().replace('.', ''))
 
 
@@ -76,6 +79,18 @@ def create_directory_if_not_exists(dir, subfolder):
         makedirs(dir + subfolder)
 
 
+def handle_empty_dirs(path):
+    directories = []
+    for (_, directory_names, _) in walk(path):
+        directories = directory_names
+        break
+    for directory in directories:
+        try:
+            rmdir(path + directory)
+        except:
+            print("Skipping non empty directory ${0}".format(path + directory))
+
+
 def run():
     if len(sys.argv) < 2:
         print("No path to sort provided")
@@ -93,7 +108,9 @@ def run():
     handle(path_to_sort, archive_endings, 'Archives')
     handle(path_to_sort, audio_endings, 'Audio')
     handle(path_to_sort, executable_endings, 'Programs')
+    handle(path_to_sort, office_endings, 'Office Documents')
     handle_remaining(path_to_sort)
+    handle_empty_dirs(path_to_sort)
 
 
 run()
