@@ -5,8 +5,8 @@ images_endings = [".jpg", ".jpeg", ".png", ".heic"]
 video_endings = [".mp4", ".avi", ".mkv", ".heif"]
 iso_endings = [".iso", ".img"]
 archive_endings = [".zip", ".tar", ".gz", ".tar.gz", ".7z", ".rar", ".xz", ".tar.xz", ".tgz"]
-executable_endings = [".exe"]
-ebook_endings = [".epub"]
+executable_endings = [".exe", ".java", ".py"]
+ebook_endings = [".epub", '.mobi']
 audio_endings = [".aac", ".mid", ".ogg", ".mp3", ".wav"]
 
 
@@ -35,6 +35,8 @@ def handle(path_to_sort, endings, foldername):
         break
     for file in files:
         filename, ending = path.splitext(file)
+        if ending == '.crdownload':
+            return
         if ending in endings:
             move_files_to(path_to_sort, file, foldername)
 
