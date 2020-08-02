@@ -1,5 +1,5 @@
 import sys
-from os import walk, path, makedirs, rename, rmdir
+from os import walk, path, makedirs, rename, rmdir, remove
 
 images_endings = [".jpg", ".jpeg", ".png", ".heic"]
 video_endings = [".mp4", ".avi", ".mkv", ".heif"]
@@ -16,7 +16,7 @@ def check_for_ebooks(file, files):
     for file_ in files:
         filename_to_check, ending_to_check = path.splitext(file_)
         filename, ending = path.splitext(file)
-        if filename_to_check == filename and ending != ending_to_check and ending_to_check in ebook_endings:
+        if filename_to_check == filename and ending != ending_to_check:
             other_files.append(file)
             other_files.append(file_)
     return other_files
@@ -25,8 +25,11 @@ def check_for_ebooks(file, files):
 def move_files_to(path_to_sort, file, folder):
     target_dir = path_to_sort + folder
     create_directory_if_not_exists(path_to_sort, folder)
-    rename(path_to_sort + file, target_dir + '/' + file)
-    pass
+    final_filename = target_dir + '/' + file
+    if not path.exists(final_filename):
+        rename(path_to_sort + file, final_filename)
+    else:
+        remove(path_to_sort + file)
 
 
 def handle(path_to_sort, endings, foldername):
@@ -49,8 +52,8 @@ def handle_remaining(path_to_sort):
         break
     for file in files:
         filename, ending = path.splitext(file)
-        if ending == '.crdownload':
-            return
+        if ending == '.crdownload' or ending == '':
+            continue
         move_files_to(path_to_sort, file, ending.upper().replace('.', ''))
 
 
@@ -66,12 +69,24 @@ def handle_ebooks(path_to_sort, path_to_ebooks):
             other_files = check_for_ebooks(file, files)
             move_files_to_ebooks(path_to_sort, other_files, path_to_ebooks)
 
+    for (_, _, filenames) in walk(path_to_sort):
+        files = filenames
+        break
+    for file in files:
+        filename, ending = path.splitext(file)
+        if ending in ebook_endings:
+            move_files_to(path_to_sort, file, 'ebooks/' + filename)
+
 
 def move_files_to_ebooks(path_to_sort, other_files, path_to_ebooks):
     for file_to_move in other_files:
         filename, ending = path.splitext(file_to_move)
         create_directory_if_not_exists(path_to_ebooks, filename)
-        rename(path_to_sort + file_to_move, path_to_ebooks + filename + '/' + filename + ending)
+        final_filename = path_to_ebooks + filename + '/' + filename + ending
+        if not path.exists(final_filename):
+            rename(path_to_sort + file_to_move, filename)
+        else:
+            remove(path_to_sort + file_to_move)
 
 
 def create_directory_if_not_exists(dir, subfolder):
@@ -100,7 +115,7 @@ def run():
         path_to_sort = path_to_sort + '/'
     print("Sorting directory ${0}".format(path_to_sort))
 
-    handle_ebooks(path_to_sort, path_to_sort + '/ebooks/')
+    handle_ebooks(path_to_sort, path_to_sort + 'ebooks/')
     handle(path_to_sort, iso_endings, 'ISOs')
     handle(path_to_sort, ebook_endings, 'ebooks')
     handle(path_to_sort, images_endings, 'Images')
