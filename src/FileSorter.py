@@ -17,8 +17,10 @@ def check_for_ebooks(file, files):
         filename_to_check, ending_to_check = path.splitext(file_)
         filename, ending = path.splitext(file)
         if filename_to_check == filename and ending != ending_to_check:
-            other_files.append(file)
-            other_files.append(file_)
+            if file not in other_files:
+                other_files.append(file)
+            if file_ not in other_files:
+                other_files.append(file_)
     return other_files
 
 
@@ -84,7 +86,7 @@ def move_files_to_ebooks(path_to_sort, other_files, path_to_ebooks):
         create_directory_if_not_exists(path_to_ebooks, filename)
         final_filename = path_to_ebooks + filename + '/' + filename + ending
         if not path.exists(final_filename):
-            rename(path_to_sort + file_to_move, filename)
+            rename(path_to_sort + file_to_move, final_filename)
         else:
             remove(path_to_sort + file_to_move)
 
