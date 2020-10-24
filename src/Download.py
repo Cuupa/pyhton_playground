@@ -2,6 +2,7 @@ import datetime
 import os
 import re
 import shutil
+from urllib import parse
 
 import requests
 from bs4 import BeautifulSoup
@@ -9,19 +10,33 @@ from bs4 import BeautifulSoup
 
 class Download:
 
-    def __init__(self, url, download_url, path_to_save, url_pattern):
+    def __init__(self, url, path_to_save, url_pattern, file_ending):
         self.url = url
-        self.download_url = download_url
         self.path_to_save = path_to_save
         self.url_pattern = url_pattern
+        self.file_ending = file_ending
 
     def get_filename(self, pdf_element):
-        link = pdf_element.get('href')
+        link = self.get_final_link(pdf_element)
         response = requests.get(link, stream=True, headers={'User-agent': 'Mozilla/5.0'})
         path, filename = os.path.split(link)
+
+        filename = self.get_final_filename(filename)
+
         if self.path_to_save == '.':
             return filename, response
         return self.path_to_save + filename, response
+
+    def get_final_link(self, pdf_element):
+        link = pdf_element.get('href')
+        if not str(link).startswith("http:") or not str(link).startswith("https:"):
+            link = "https://" + parse.urlparse(self.url).hostname + link
+        return link
+
+    def get_final_filename(self, filename):
+        if not self.file_ending in str(filename):
+            filename = filename + self.file_ending
+        return filename
 
     def download(self):
         response = requests.get(self.url)
